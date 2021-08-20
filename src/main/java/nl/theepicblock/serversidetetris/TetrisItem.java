@@ -1,13 +1,17 @@
 package nl.theepicblock.serversidetetris;
 
+import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-public class TetrisItem extends Item {
+public class TetrisItem extends Item implements VirtualItem {
     public static Vec3f BLACK = new Vec3f(0, 0, 0);
     public static Vec3f WHITE = new Vec3f(1, 1, 1);
     public static Vec3f RED = new Vec3f(1, 0, 0);
@@ -76,5 +80,20 @@ public class TetrisItem extends Item {
 
     private void drawLine() {
 
+    }
+
+    @Override
+    public Item getVirtualItem() {
+        return Items.BAKED_POTATO;
+    }
+
+    public static final ItemStack STACK = new ItemStack(Items.BAKED_POTATO, 1);
+    @Override
+    public ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return STACK;
+    }
+
+    static {
+        STACK.setCustomName(new LiteralText("Some Console"));
     }
 }

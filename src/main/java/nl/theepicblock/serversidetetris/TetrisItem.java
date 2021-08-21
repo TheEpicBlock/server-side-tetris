@@ -72,14 +72,7 @@ public class TetrisItem extends Item implements VirtualItem {
                     ParticleUtil.sendRelative(colour, 0.1f, x * scale, y * scale, 1, 0, 0, 0, 0, 6, player);
                 }
             }
-//            ParticleUtil.sendRelative(WHITE, 0.1f, 0, 0, 1, 0, 0, 0, 0, 500, player);
-//            ParticleUtil.sendRelative(RED, 0.1f, 0.1, 0, 1,0, 0, 0, 0, 500, player);
-//            ParticleUtil.sendRelative(GREEN, 0.1f, 0, 0.1, 1, 0, 0, 0, 0, 500, player);
         }
-    }
-
-    private void drawLine() {
-
     }
 
     @Override

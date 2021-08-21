@@ -2,11 +2,16 @@ package nl.theepicblock.serversidetetris;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.DyeColor;
 
 public class TetrisState {
     private static final int WIDTH  = 10;
     private static final int HEIGHT = 20;
-    public final byte[] area = new byte[WIDTH * HEIGHT];
+
+    private final byte[] area = new byte[WIDTH * HEIGHT];
+    private Tetromino currentTetromino = null;
+    private Vec2i tetrominoPos = null;
+    private DyeColor tetrominoColour;
 
     public TetrisState(NbtCompound nbt) {
         var area = nbt.getByteArray("area");

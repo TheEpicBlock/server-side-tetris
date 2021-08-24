@@ -11,6 +11,7 @@ public enum Tetromino {
     REVERSE_WIGGLY("oxx\nxzo"),
     T("oxo\nxzx");
 
+    public static final Tetromino[] VALUES = Tetromino.values();
     private final Vec2i[] points;
 
     Tetromino(String template) {
@@ -36,5 +37,9 @@ public enum Tetromino {
         }
 
         this.points = points.toArray(new Vec2i[0]);
+    }
+
+    public Vec2i[] getPoints() {
+        return points;
     }
 }

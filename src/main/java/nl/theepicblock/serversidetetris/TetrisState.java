@@ -12,6 +12,7 @@ public class TetrisState {
     public static final int HEIGHT = 20;
     private static final Vec2i TETROMINO_SPAWN = new Vec2i(WIDTH/2, HEIGHT-1);
     private static final Vec2i DOWN = new Vec2i(0, -1);
+    private static final DyeColor[] COLOURS = {DyeColor.ORANGE, DyeColor.MAGENTA, DyeColor.LIGHT_BLUE, DyeColor.YELLOW, DyeColor.LIME, DyeColor.PINK, DyeColor.CYAN, DyeColor.PURPLE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.RED};
 
     private final byte[] area = new byte[WIDTH * HEIGHT];
     private Tetromino currentTetromino = null;
@@ -35,7 +36,7 @@ public class TetrisState {
 
     public void newTetromino(Random random) {
         currentTetromino = Util.getRandom(Tetromino.VALUES, random);
-        tetrominoColour = Util.getRandom(DyeColor.values(), random);
+        tetrominoColour = Util.getRandom(COLOURS, random);
 
         tetrominoPos = TETROMINO_SPAWN;
     }

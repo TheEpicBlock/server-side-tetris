@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public enum Tetromino {
     LINE("xzxx"),
-    L("xoo\nzxx"),
-    REVERSE_L("oox\nxxz"),
+    L("xoo\nxzx"),
+    REVERSE_L("oox\nxzx"),
     SQUARE("xz\nxx"),
     WIGGLY("xxo\nozx"),
     REVERSE_WIGGLY("oxx\nxzo"),

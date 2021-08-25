@@ -44,14 +44,19 @@ public class TetrisState {
     public void onClick(boolean isShifting, boolean isRight) {
         if (isShifting) {
             var newPos = this.tetrominoPos.add(isRight ? RIGHT : LEFT);
-            if (!collides(currentTetromino, newPos)) {
+            if (!collides(currentTetromino, newPos, tetronimoRotation)) {
                 this.tetrominoPos = newPos;
             }
         } else {
             if (currentTetromino == Tetromino.SQUARE) return;
-            tetronimoRotation += isRight ? 1 : -1;
-            if (tetronimoRotation == -1) tetronimoRotation = 3;
-            if (tetronimoRotation == 4)  tetronimoRotation = 0;
+
+            byte newRot = (byte)(tetronimoRotation + (isRight ? 1 : -1));
+            if (newRot == -1) newRot = 3;
+            if (newRot == 4)  newRot = 0;
+
+            if (!collides(this.currentTetromino, this.tetrominoPos, newRot)) {
+                tetronimoRotation = newRot;
+            }
         }
     }
 
@@ -80,7 +85,7 @@ public class TetrisState {
             var prevPos = tetrominoPos;
             tetrominoPos = tetrominoPos.add(DOWN);
 
-            if (collides(currentTetromino, tetrominoPos)) {
+            if (collides(currentTetromino, tetrominoPos, tetronimoRotation)) {
                 tetrominoPos = prevPos;
                 var colourId = getColourId(tetrominoColour);
                 for (var point : currentTetromino.getPoints(tetronimoRotation)) {
@@ -99,8 +104,8 @@ public class TetrisState {
         }
     }
 
-    private boolean collides(Tetromino tetromino, Vec2i pos) {
-        for (Vec2i point : tetromino.getPoints(tetronimoRotation)) {
+    private boolean collides(Tetromino tetromino, Vec2i pos, byte rot) {
+        for (Vec2i point : tetromino.getPoints(rot)) {
             point = point.add(pos);
             if (point.y() < 0) return true;
             if (point.x() < 0 || point.x() >= WIDTH) return true;

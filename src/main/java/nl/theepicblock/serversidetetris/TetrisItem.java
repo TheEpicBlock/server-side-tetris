@@ -83,13 +83,8 @@ public class TetrisItem extends Item implements VirtualItem {
         return Items.BAKED_POTATO;
     }
 
-    public static final ItemStack STACK = new ItemStack(Items.BAKED_POTATO, 1);
     @Override
     public ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return STACK;
-    }
-
-    static {
-        STACK.setCustomName(new LiteralText("Some Console"));
+        return new ItemStack(getVirtualItem(), 1).setCustomName(new LiteralText("Some Console"));
     }
 }

@@ -38,13 +38,22 @@ public class TetrisItem extends Item implements VirtualItem {
 
         if (selected && entity instanceof ServerPlayerEntity player) {
             var area = state.getArea();
+            var currentTetronimoPoints = state.getCurrentTetromino().getPoints();
+            var currentTetronimoPos = state.getTetrominoPos();
             var x = 0;
             var y = 0;
 
             for (byte b : area) {
                 var colour = TetrisState.fromColourId(b);
+
+                for (var point : currentTetronimoPoints) {
+                    if (currentTetronimoPos.x()+point.x() == x && currentTetronimoPos.y()+point.y() == y) colour = state.getTetrominoColour();
+                }
+
                 var colourComponents = new Vec3f(colour.getColorComponents()[0], colour.getColorComponents()[1], colour.getColorComponents()[2]);
-                ParticleUtil.sendRelative(colourComponents, SCALE, x * PROXIMITY, y * PROXIMITY, 1, 0, 0, 0, 0, 6, player);
+                ParticleUtil.sendRelative(colourComponents, SCALE,
+                        -x * PROXIMITY + TetrisState.WIDTH*PROXIMITY/2,
+                        y * PROXIMITY + TetrisState.HEIGHT*PROXIMITY/2, 1, 0, 0, 0, 0, 6, player);
 
                 x++;
                 if (x >= TetrisState.WIDTH) {

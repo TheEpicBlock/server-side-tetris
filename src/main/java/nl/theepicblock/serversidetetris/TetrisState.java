@@ -76,17 +76,15 @@ public class TetrisState {
                 tetrominoPos = prevPos;
                 var colourId = getColourId(tetrominoColour);
                 for (var point : currentTetromino.getPoints()) {
-                    // Safety checks in case the thing went rogue
                     var transfPos = point.add(tetrominoPos);
-                    if (transfPos.x() < 0) tetrominoPos = tetrominoPos.add(new Vec2i(-point.x(), 0));
-                    if (transfPos.x() >= WIDTH-1) tetrominoPos = tetrominoPos.add(new Vec2i(WIDTH-point.x(), 0));
+                    if (transfPos.x() < 0 || transfPos.x() >= WIDTH) continue;
 
                     if (transfPos.y() >= HEIGHT) {
                         this.reset();
                         return;
                     }
 
-                    areaSet(point.add(tetrominoPos), colourId);
+                    areaSet(transfPos, colourId);
                 }
                 newTetromino(new Random());
             }
@@ -121,6 +119,18 @@ public class TetrisState {
 
     public byte[] getArea() {
         return area;
+    }
+
+    public Tetromino getCurrentTetromino() {
+        return currentTetromino;
+    }
+
+    public DyeColor getTetrominoColour() {
+        return tetrominoColour;
+    }
+
+    public Vec2i getTetrominoPos() {
+        return tetrominoPos;
     }
 
     public static byte getColourId(DyeColor colour) {

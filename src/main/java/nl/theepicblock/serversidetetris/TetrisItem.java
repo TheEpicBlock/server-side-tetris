@@ -35,7 +35,7 @@ public class TetrisItem extends Item implements VirtualItem {
 
         if (selected && entity instanceof ServerPlayerEntity player) {
             var area = state.getArea();
-            var currentTetronimoPoints = state.getCurrentTetromino().getPoints();
+            var currentTetronimoPoints = state.getCurrentTetromino().getPoints(state.getTetronimoRotation());
             var currentTetronimoPos = state.getTetrominoPos();
             var x = 0;
             var y = 0;

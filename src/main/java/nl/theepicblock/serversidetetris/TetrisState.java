@@ -21,6 +21,7 @@ public class TetrisState {
     private Tetromino currentTetromino = null;
     private Vec2i tetrominoPos = null;
     private DyeColor tetrominoColour = null;
+    private byte tetronimoRotation = 0;
     private byte tick;
 
     public TetrisState(NbtCompound nbt) {
@@ -30,7 +31,10 @@ public class TetrisState {
         this.currentTetromino = Tetromino.VALUES[nbt.getByte("tetromino")];
         this.tetrominoPos = new Vec2i(nbt.getInt("tetrominoX"), nbt.getInt("tetrominoY"));
         this.tetrominoColour = fromColourId(nbt.getByte("terominoColour"));
+        this.tetronimoRotation = nbt.getByte("terominoRotation");
         this.tick = nbt.getByte("tick");
+
+        if (tetronimoRotation > 4 || tetronimoRotation < 0) tetronimoRotation = 0;
     }
 
     public TetrisState() {
@@ -44,7 +48,10 @@ public class TetrisState {
                 this.tetrominoPos = newPos;
             }
         } else {
-
+            if (currentTetromino == Tetromino.SQUARE) return;
+            tetronimoRotation += isRight ? 1 : -1;
+            if (tetronimoRotation == -1) tetronimoRotation = 3;
+            if (tetronimoRotation == 4)  tetronimoRotation = 0;
         }
     }
 
@@ -60,6 +67,7 @@ public class TetrisState {
         this.currentTetromino = Tetromino.L;
         this.tetrominoPos = TETROMINO_SPAWN;
         this.tetrominoColour = DyeColor.CYAN;
+        this.tetronimoRotation = 0;
         this.tick = 0;
     }
 
@@ -75,7 +83,7 @@ public class TetrisState {
             if (collides(currentTetromino, tetrominoPos)) {
                 tetrominoPos = prevPos;
                 var colourId = getColourId(tetrominoColour);
-                for (var point : currentTetromino.getPoints()) {
+                for (var point : currentTetromino.getPoints(tetronimoRotation)) {
                     var transfPos = point.add(tetrominoPos);
                     if (transfPos.x() < 0 || transfPos.x() >= WIDTH) continue;
 
@@ -92,10 +100,11 @@ public class TetrisState {
     }
 
     private boolean collides(Tetromino tetromino, Vec2i pos) {
-        for (Vec2i point : tetromino.getPoints()) {
+        for (Vec2i point : tetromino.getPoints(tetronimoRotation)) {
             point = point.add(pos);
             if (point.y() < 0) return true;
             if (point.x() < 0 || point.x() >= WIDTH) return true;
+            if (point.y() >= HEIGHT) continue;
             if (areaGet(point) != 0) return true;
         }
         return false;
@@ -133,6 +142,10 @@ public class TetrisState {
         return tetrominoPos;
     }
 
+    public byte getTetronimoRotation() {
+        return tetronimoRotation;
+    }
+
     public static byte getColourId(DyeColor colour) {
         if (colour == DyeColor.BLACK) return 0;
         return (byte)(colour.getId()+1);
@@ -167,6 +180,7 @@ public class TetrisState {
         nbt.putInt("tetrominoX", tetrominoPos.x());
         nbt.putInt("tetrominoY", tetrominoPos.y());
         nbt.putByte("terominoColour", getColourId(tetrominoColour));
+        nbt.putByte("terominoRotation", tetronimoRotation);
         nbt.putByte("tick", tick);
     }
 }

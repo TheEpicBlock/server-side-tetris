@@ -4,6 +4,7 @@
   "package": "nl.theepicblock.serversidetetris.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinSwingHand"
   ],
   "injectors": {
     "defaultRequire": 1

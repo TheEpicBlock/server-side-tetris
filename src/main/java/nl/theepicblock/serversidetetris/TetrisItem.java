@@ -1,13 +1,19 @@
 package nl.theepicblock.serversidetetris;
 
 import eu.pb4.polymer.item.VirtualItem;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +52,36 @@ public class TetrisItem extends Item implements VirtualItem {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean canMine(BlockState blockState, World world, BlockPos pos, PlayerEntity miner) {
+        var stack = miner.getMainHandStack();
+        var state = TetrisState.fromItem(stack);
+
+        state.onClick(miner.isSneaking(), false);
+
+        var stateNbt = new NbtCompound();
+        state.writeToNbt(stateNbt);
+        stack.setSubNbt("state", stateNbt);
+
+        miner.equipStack(EquipmentSlot.MAINHAND, stack);
+        return false;
+    }
+
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        if (world.isClient()) return super.use(world, user, hand);
+        var stack = user.getStackInHand(hand);
+        var state = TetrisState.fromItem(stack);
+
+        state.onClick(user.isSneaking(), true);
+
+        var stateNbt = new NbtCompound();
+        state.writeToNbt(stateNbt);
+        stack.setSubNbt("state", stateNbt);
+
+        return TypedActionResult.success(stack, world.isClient());
     }
 
     @Override

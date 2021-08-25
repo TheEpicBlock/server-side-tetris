@@ -5,6 +5,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Util;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class TetrisState {
@@ -12,6 +13,8 @@ public class TetrisState {
     public static final int HEIGHT = 20;
     private static final Vec2i TETROMINO_SPAWN = new Vec2i(WIDTH/2, HEIGHT-1);
     private static final Vec2i DOWN = new Vec2i(0, -1);
+    private static final Vec2i LEFT = new Vec2i(-1, 0);
+    private static final Vec2i RIGHT = new Vec2i(1, 0);
     private static final DyeColor[] COLOURS = {DyeColor.ORANGE, DyeColor.MAGENTA, DyeColor.LIGHT_BLUE, DyeColor.YELLOW, DyeColor.LIME, DyeColor.PINK, DyeColor.CYAN, DyeColor.PURPLE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.RED};
 
     private final byte[] area = new byte[WIDTH * HEIGHT];
@@ -34,6 +37,17 @@ public class TetrisState {
 
     }
 
+    public void onClick(boolean isShifting, boolean isRight) {
+        if (isShifting) {
+            var newPos = this.tetrominoPos.add(isRight ? RIGHT : LEFT);
+            if (!collides(currentTetromino, newPos)) {
+                this.tetrominoPos = newPos;
+            }
+        } else {
+
+        }
+    }
+
     public void newTetromino(Random random) {
         currentTetromino = Util.getRandom(Tetromino.VALUES, random);
         tetrominoColour = Util.getRandom(COLOURS, random);
@@ -41,19 +55,37 @@ public class TetrisState {
         tetrominoPos = TETROMINO_SPAWN;
     }
 
+    public void reset() {
+        Arrays.fill(area, (byte)0);
+        this.currentTetromino = Tetromino.L;
+        this.tetrominoPos = TETROMINO_SPAWN;
+        this.tetrominoColour = DyeColor.CYAN;
+        this.tick = 0;
+    }
+
     public void tick() {
         if (currentTetromino == null) newTetromino(new Random());
         tick++;
 
-        if (tick % 40 == 0) {
+        if (tick % 5 == 0) {
             tick = 0;
             var prevPos = tetrominoPos;
             tetrominoPos = tetrominoPos.add(DOWN);
 
-            if (doesCurrentTetrominoCollide()) {
+            if (collides(currentTetromino, tetrominoPos)) {
                 tetrominoPos = prevPos;
                 var colourId = getColourId(tetrominoColour);
-                for (Vec2i point : currentTetromino.getPoints()) {
+                for (var point : currentTetromino.getPoints()) {
+                    // Safety checks in case the thing went rogue
+                    var transfPos = point.add(tetrominoPos);
+                    if (transfPos.x() < 0) tetrominoPos = tetrominoPos.add(new Vec2i(-point.x(), 0));
+                    if (transfPos.x() >= WIDTH-1) tetrominoPos = tetrominoPos.add(new Vec2i(WIDTH-point.x(), 0));
+
+                    if (transfPos.y() >= HEIGHT) {
+                        this.reset();
+                        return;
+                    }
+
                     areaSet(point.add(tetrominoPos), colourId);
                 }
                 newTetromino(new Random());
@@ -61,12 +93,11 @@ public class TetrisState {
         }
     }
 
-    private boolean doesCurrentTetrominoCollide() {
-        var points = currentTetromino.getPoints();
-
-        for (Vec2i point : points) {
-            point = point.add(tetrominoPos);
+    private boolean collides(Tetromino tetromino, Vec2i pos) {
+        for (Vec2i point : tetromino.getPoints()) {
+            point = point.add(pos);
             if (point.y() < 0) return true;
+            if (point.x() < 0 || point.x() >= WIDTH) return true;
             if (areaGet(point) != 0) return true;
         }
         return false;

@@ -11,13 +11,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
+
 public class TetrisItem extends Item implements VirtualItem {
-    private static final float PROXIMITY = 0.02f;
-    private static final float SCALE     = 0.1f;
 
     public TetrisItem(Settings settings) {
         super(settings);
@@ -26,39 +25,20 @@ public class TetrisItem extends Item implements VirtualItem {
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, world, entity, slot, selected);
-        var state = TetrisState.fromItem(stack);
-        state.tick();
 
-        var stateNbt = new NbtCompound();
-        state.writeToNbt(stateNbt);
-        stack.setSubNbt("state", stateNbt);
+        TetrisState state = null;
+
+        if (TetrisItem.isGameActive(stack)) {
+            state = TetrisItem.tickGame(stack);
+        }
 
         if (selected && entity instanceof ServerPlayerEntity player) {
-            var area = state.getArea();
-            var currentTetronimoPoints = state.getCurrentTetromino().getPoints(state.getTetronimoRotation());
-            var currentTetronimoPos = state.getTetrominoPos();
-            var x = 0;
-            var y = 0;
+            if (state == null) state = TetrisState.fromItem(stack);
 
-            for (byte b : area) {
-                var colour = TetrisState.fromColourId(b);
-
-                for (var point : currentTetronimoPoints) {
-                    if (currentTetronimoPos.x() + point.x() == x && currentTetronimoPos.y() + point.y() == y) {
-                        colour = state.getTetrominoColour();
-                        break;
-                    }
-                }
-
-                var colourComponents = new Vec3f(colour.getColorComponents()[0], colour.getColorComponents()[1], colour.getColorComponents()[2]);
-                ParticleUtil.sendRelative(colourComponents, SCALE,
-                        -x * PROXIMITY + TetrisState.WIDTH*PROXIMITY/2,
-                        y * PROXIMITY - TetrisState.HEIGHT*PROXIMITY/2, 1, 0, 0, 0, 0, 6, player);
-
-                x++;
-                if (x >= TetrisState.WIDTH) {
-                    x = 0; y++;
-                }
+            if (TetrisItem.isGameActive(stack)) {
+                TetrisDisplay.displayGame(player, state);
+            } else {
+                TetrisDisplay.displayStartScreen(player);
             }
         }
     }
@@ -67,15 +47,46 @@ public class TetrisItem extends Item implements VirtualItem {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (world.isClient()) return super.use(world, user, hand);
         var stack = user.getStackInHand(hand);
-        var state = TetrisState.fromItem(stack);
 
-        state.onClick(user.isSneaking(), true);
-
-        var stateNbt = new NbtCompound();
-        state.writeToNbt(stateNbt);
-        stack.setSubNbt("state", stateNbt);
+        onClick(stack, user.isSneaking(), true);
 
         return TypedActionResult.success(stack, world.isClient());
+    }
+
+    public static void onClick(ItemStack stack, boolean isShifting, boolean isRight) {
+        TetrisState state;
+        if (isGameActive(stack)) {
+            state = TetrisState.fromItem(stack);
+
+            state.onClick(isShifting, isRight);
+
+        } else {
+            // Start new game
+            state = new TetrisState();
+            state.newTetromino(new Random());
+        }
+        var stateNbt = new NbtCompound();
+        state.writeToNbt(stateNbt);
+        stack.setSubNbt("game", stateNbt);
+    }
+
+    public static TetrisState tickGame(ItemStack stack) {
+        var state = TetrisState.fromItem(stack);
+        state.tick();
+
+        if (state.justDied) {
+            stack.removeSubNbt("game");
+        } else {
+            var stateNbt = new NbtCompound();
+            state.writeToNbt(stateNbt);
+            stack.setSubNbt("game", stateNbt);
+        }
+
+        return state;
+    }
+
+    public static boolean isGameActive(ItemStack stack) {
+        return stack.getSubNbt("game") != null;
     }
 
     @Override

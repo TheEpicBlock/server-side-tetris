@@ -5,7 +5,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Util;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class TetrisState {
@@ -23,6 +22,7 @@ public class TetrisState {
     private DyeColor tetrominoColour = null;
     private byte tetronimoRotation = 0;
     private byte tick;
+    public boolean justDied = false;
 
     public TetrisState(NbtCompound nbt) {
         var area = nbt.getByteArray("area");
@@ -67,15 +67,6 @@ public class TetrisState {
         tetrominoPos = TETROMINO_SPAWN;
     }
 
-    public void reset() {
-        Arrays.fill(area, (byte)0);
-        this.currentTetromino = Tetromino.L;
-        this.tetrominoPos = TETROMINO_SPAWN;
-        this.tetrominoColour = DyeColor.CYAN;
-        this.tetronimoRotation = 0;
-        this.tick = 0;
-    }
-
     public void tick() {
         if (currentTetromino == null) newTetromino(new Random());
         tick++;
@@ -93,7 +84,7 @@ public class TetrisState {
                     if (transfPos.x() < 0 || transfPos.x() >= WIDTH) continue;
 
                     if (transfPos.y() >= HEIGHT) {
-                        this.reset();
+                        justDied = true;
                         return;
                     }
 
@@ -162,7 +153,7 @@ public class TetrisState {
     }
 
     public static TetrisState fromItem(ItemStack stack) {
-        var stateNbt = stack.getSubNbt("state");
+        var stateNbt = stack.getSubNbt("game");
         return stateNbt == null ? new TetrisState() : new TetrisState(stateNbt);
     }
 

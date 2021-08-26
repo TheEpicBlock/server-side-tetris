@@ -1,10 +1,9 @@
 package nl.theepicblock.serversidetetris.mixin;
 
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import nl.theepicblock.serversidetetris.ServerSideTetris;
-import nl.theepicblock.serversidetetris.TetrisState;
+import nl.theepicblock.serversidetetris.TetrisItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,13 +17,7 @@ public class MixinSwingHand {
         var stack = player.getStackInHand(hand);
 
         if (stack.getItem() == ServerSideTetris.TETRIS_ITEM) {
-            var state = TetrisState.fromItem(stack);
-
-            state.onClick(player.isSneaking(), false);
-
-            var stateNbt = new NbtCompound();
-            state.writeToNbt(stateNbt);
-            stack.setSubNbt("state", stateNbt);
+            TetrisItem.onClick(stack, player.isSneaking(), false);
 
             player.setStackInHand(hand, stack);
         }

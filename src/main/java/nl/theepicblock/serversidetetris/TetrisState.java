@@ -1,10 +1,12 @@
 package nl.theepicblock.serversidetetris;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Util;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class TetrisState {
@@ -22,7 +24,9 @@ public class TetrisState {
     private DyeColor tetrominoColour = null;
     private byte tetronimoRotation = 0;
     private byte tick;
+    private int score = 0;
     public boolean justDied = false;
+    public boolean scoreChanged = false;
 
     public TetrisState(NbtCompound nbt) {
         var area = nbt.getByteArray("area");
@@ -33,6 +37,7 @@ public class TetrisState {
         this.tetrominoColour = fromColourId(nbt.getByte("terominoColour"));
         this.tetronimoRotation = nbt.getByte("terominoRotation");
         this.tick = nbt.getByte("tick");
+        this.score = nbt.getInt("score");
 
         if (tetronimoRotation > 4 || tetronimoRotation < 0) tetronimoRotation = 0;
     }
@@ -91,6 +96,8 @@ public class TetrisState {
                     areaSet(transfPos, colourId);
                 }
                 newTetromino(new Random());
+
+                checkClearLines();
             }
         }
     }
@@ -104,6 +111,37 @@ public class TetrisState {
             if (areaGet(point) != 0) return true;
         }
         return false;
+    }
+
+    private void checkClearLines() {
+        var linesCleared = new IntArrayList();
+        for (int y = 0; y < HEIGHT; y++) {
+            var count = 0;
+            for (int x = 0; x < WIDTH; x++) {
+                var val = areaGet(x, y);
+                if (val != 0) count++;
+            }
+
+            if (count == WIDTH) {
+                linesCleared.add(y);
+            }
+        }
+
+        var pointsEarned = switch (linesCleared.size()) {
+            case 1 -> 10;
+            case 2 -> 25;
+            case 3 -> 50;
+            case 4 -> 100;
+            default -> 0;
+        };
+
+        this.score += pointsEarned;
+        if (pointsEarned != 0) scoreChanged = true;
+
+        for (int i : linesCleared) {
+            System.arraycopy(this.area, (i+1)*WIDTH, this.area, i*WIDTH, this.area.length-(i+1)*WIDTH); // Shift down
+            Arrays.fill(this.area, this.area.length-WIDTH, this.area.length, (byte)0); // Clear top line
+        }
     }
 
     public void areaSet(Vec2i pos, byte v) {
@@ -142,6 +180,10 @@ public class TetrisState {
         return tetronimoRotation;
     }
 
+    public int getScore() {
+        return score;
+    }
+
     public static byte getColourId(DyeColor colour) {
         if (colour == DyeColor.BLACK) return 0;
         return (byte)(colour.getId()+1);
@@ -178,5 +220,6 @@ public class TetrisState {
         nbt.putByte("terominoColour", getColourId(tetrominoColour));
         nbt.putByte("terominoRotation", tetronimoRotation);
         nbt.putByte("tick", tick);
+        nbt.putInt("score", score);
     }
 }

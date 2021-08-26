@@ -26,19 +26,21 @@ public class TetrisItem extends Item implements VirtualItem {
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, world, entity, slot, selected);
 
-        TetrisState state = null;
-
-        if (TetrisItem.isGameActive(stack)) {
-            state = TetrisItem.tickGame(stack);
-        }
-
-        if (selected && entity instanceof ServerPlayerEntity player) {
-            if (state == null) state = TetrisState.fromItem(stack);
+        if (entity instanceof ServerPlayerEntity player) {
+            TetrisState state = null;
 
             if (TetrisItem.isGameActive(stack)) {
-                TetrisDisplay.displayGame(player, state);
-            } else {
-                TetrisDisplay.displayStartScreen(player);
+                state = TetrisItem.tickGame(stack, player);
+            }
+
+            if (selected) {
+                if (state == null) state = TetrisState.fromItem(stack);
+
+                if (TetrisItem.isGameActive(stack)) {
+                    TetrisDisplay.displayGame(player, state);
+                } else {
+                    TetrisDisplay.displayStartScreen(player);
+                }
             }
         }
     }
@@ -70,9 +72,13 @@ public class TetrisItem extends Item implements VirtualItem {
         stack.setSubNbt("game", stateNbt);
     }
 
-    public static TetrisState tickGame(ItemStack stack) {
+    public static TetrisState tickGame(ItemStack stack, ServerPlayerEntity playerEntity) {
         var state = TetrisState.fromItem(stack);
         state.tick();
+
+        if (state.scoreChanged) {
+            playerEntity.sendMessage(new LiteralText("Your score: "+state.getScore()), true);
+        }
 
         if (state.justDied) {
             stack.removeSubNbt("game");

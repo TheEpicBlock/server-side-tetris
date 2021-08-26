@@ -11,7 +11,7 @@ public class TetrisDisplay {
     private static final float SCALE     = 0.1f;
     private static final Vec3f BLACK = new Vec3f(0,0,0);
     private static final Vec3f WHITE = new Vec3f(1,1,1);
-    private static final Vec3f YELLOW = new Vec3f(1,0,0);
+    private static final Vec3f RED = new Vec3f(1,0,0);
 
     public static void displayGame(ServerPlayerEntity player, TetrisState state) {
         var area = state.getArea();
@@ -46,10 +46,11 @@ public class TetrisDisplay {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 var colour = (x+y) % 2 == 0 ? BLACK : WHITE;
+                if (x == 0 || x == WIDTH-1 || y == 0 || y == HEIGHT-1) colour = BLACK;
 
                 if (x > (WIDTH/2)-3 && x < (WIDTH/2+3)) {
                     if (Math.abs(y-(HEIGHT+1)/2.0f+0.5) < ((WIDTH/2.+3)-x)/2.) {
-                        colour = YELLOW;
+                        colour = RED;
                     }
                 }
 

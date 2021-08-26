@@ -88,7 +88,7 @@ public class TetrisState {
                     var transfPos = point.add(tetrominoPos);
                     if (transfPos.x() < 0 || transfPos.x() >= WIDTH) continue;
 
-                    if (transfPos.y() >= HEIGHT) {
+                    if (transfPos.y() >= HEIGHT-1) {
                         justDied = true;
                         return;
                     }

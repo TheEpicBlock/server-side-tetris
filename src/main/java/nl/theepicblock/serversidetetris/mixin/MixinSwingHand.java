@@ -17,7 +17,7 @@ public class MixinSwingHand {
         var stack = player.getStackInHand(hand);
 
         if (stack.getItem() == ServerSideTetris.TETRIS_ITEM) {
-            TetrisItem.onClick(stack, player.isSneaking(), false);
+            TetrisItem.onClick(stack, player, player.isSneaking(), false);
 
             player.setStackInHand(hand, stack);
         }

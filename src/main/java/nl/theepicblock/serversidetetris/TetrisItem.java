@@ -50,26 +50,33 @@ public class TetrisItem extends Item implements VirtualItem {
         if (world.isClient()) return super.use(world, user, hand);
         var stack = user.getStackInHand(hand);
 
-        onClick(stack, user.isSneaking(), true);
+        onClick(stack, user, user.isSneaking(), true);
 
         return TypedActionResult.success(stack, world.isClient());
     }
 
-    public static void onClick(ItemStack stack, boolean isShifting, boolean isRight) {
-        TetrisState state;
+    public static void onClick(ItemStack stack, PlayerEntity playerEntity, boolean isShifting, boolean isRight) {
         if (isGameActive(stack)) {
-            state = TetrisState.fromItem(stack);
+            var state = TetrisState.fromItem(stack);
 
             state.onClick(isShifting, isRight);
 
+            var stateNbt = new NbtCompound();
+            state.writeToNbt(stateNbt);
+            stack.setSubNbt("game", stateNbt);
         } else {
-            // Start new game
-            state = new TetrisState();
-            state.newTetromino(new Random());
+            if (isRight) {
+                // Start new game
+                var state = new TetrisState();
+                state.newTetromino(new Random());
+
+                var stateNbt = new NbtCompound();
+                state.writeToNbt(stateNbt);
+                stack.setSubNbt("game", stateNbt);
+            } else {
+                playerEntity.sendMessage(new LiteralText("The current stored highscore is: "+getHighscore(stack) + " by " + getHighscorer(stack)), false);
+            }
         }
-        var stateNbt = new NbtCompound();
-        state.writeToNbt(stateNbt);
-        stack.setSubNbt("game", stateNbt);
     }
 
     public static TetrisState tickGame(ItemStack stack, ServerPlayerEntity playerEntity) {
@@ -81,6 +88,13 @@ public class TetrisItem extends Item implements VirtualItem {
         }
 
         if (state.justDied) {
+            if (state.getScore() > getHighscore(stack)) {
+                playerEntity.sendMessage(new LiteralText("New highscore! "+state.getScore()), false);
+                setHighscore(stack, playerEntity.getEntityName(), state.getScore());
+            } else {
+                playerEntity.sendMessage(new LiteralText("Your score was "+state.getScore()), false);
+            }
+
             stack.removeSubNbt("game");
         } else {
             var stateNbt = new NbtCompound();
@@ -93,6 +107,27 @@ public class TetrisItem extends Item implements VirtualItem {
 
     public static boolean isGameActive(ItemStack stack) {
         return stack.getSubNbt("game") != null;
+    }
+
+    public static void setHighscore(ItemStack stack, String name, int v) {
+        var nbt = stack.getSubNbt("state");
+        if (nbt == null) nbt = new NbtCompound();
+        nbt.putInt("highscore", v);
+        nbt.putString("highscorer", name);
+        stack.setSubNbt("state", nbt);
+    }
+
+    public static int getHighscore(ItemStack stack) {
+        var nbt = stack.getSubNbt("state");
+        if (nbt == null) return 0;
+        return nbt.getInt("highscore");
+    }
+
+    public static String getHighscorer(ItemStack stack) {
+        var nbt = stack.getSubNbt("state");
+        if (nbt == null) return "nobody";
+        var res = nbt.getString("highscorer");
+        return res.equals("") ? "nobody" : res;
     }
 
     @Override

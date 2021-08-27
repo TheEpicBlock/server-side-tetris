@@ -9,6 +9,7 @@ import static nl.theepicblock.serversidetetris.TetrisState.WIDTH;
 public class TetrisDisplay {
     private static final float PROXIMITY = 0.02f;
     private static final float SCALE     = 0.1f;
+    private static final float SPREAD    = 0.0005f;
     private static final Vec3f BLACK = new Vec3f(0,0,0);
     private static final Vec3f WHITE = new Vec3f(1,1,1);
     private static final Vec3f RED = new Vec3f(1,0,0);
@@ -32,7 +33,7 @@ public class TetrisDisplay {
 
             ParticleUtil.sendRelative(colour.asVec, SCALE,
                     -x * PROXIMITY + WIDTH*PROXIMITY/2,
-                    y * PROXIMITY - HEIGHT*PROXIMITY/2, 1, 0, 0, 0, 0, 6, player);
+                    y * PROXIMITY - HEIGHT*PROXIMITY/2, 1, SPREAD, SPREAD, SPREAD, 0, 6, player);
 
             x++;
             if (x >= WIDTH) {

@@ -30,8 +30,7 @@ public class TetrisDisplay {
                 }
             }
 
-            var colourComponents = new Vec3f(colour.getColorComponents()[0], colour.getColorComponents()[1], colour.getColorComponents()[2]);
-            ParticleUtil.sendRelative(colourComponents, SCALE,
+            ParticleUtil.sendRelative(colour.asVec, SCALE,
                     -x * PROXIMITY + WIDTH*PROXIMITY/2,
                     y * PROXIMITY - HEIGHT*PROXIMITY/2, 1, 0, 0, 0, 0, 6, player);
 

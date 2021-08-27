@@ -3,7 +3,6 @@ package nl.theepicblock.serversidetetris;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Util;
 
 import java.util.Arrays;
@@ -16,12 +15,11 @@ public class TetrisState {
     private static final Vec2i DOWN = new Vec2i(0, -1);
     private static final Vec2i LEFT = new Vec2i(-1, 0);
     private static final Vec2i RIGHT = new Vec2i(1, 0);
-    private static final DyeColor[] COLOURS = {DyeColor.ORANGE, DyeColor.MAGENTA, DyeColor.LIGHT_BLUE, DyeColor.YELLOW, DyeColor.LIME, DyeColor.PINK, DyeColor.CYAN, DyeColor.PURPLE, DyeColor.BLUE, DyeColor.GREEN, DyeColor.RED};
 
     private final byte[] area = new byte[WIDTH * HEIGHT];
     private Tetromino currentTetromino = null;
     private Vec2i tetrominoPos = null;
-    private DyeColor tetrominoColour = null;
+    private Colour tetrominoColour = null;
     private byte tetronimoRotation = 0;
     private byte tick;
     private int score = 0;
@@ -67,7 +65,7 @@ public class TetrisState {
 
     public void newTetromino(Random random) {
         currentTetromino = Util.getRandom(Tetromino.VALUES, random);
-        tetrominoColour = Util.getRandom(COLOURS, random);
+        tetrominoColour = Util.getRandom(Colour.COLOURS, random);
 
         tetrominoPos = TETROMINO_SPAWN;
     }
@@ -168,7 +166,7 @@ public class TetrisState {
         return currentTetromino;
     }
 
-    public DyeColor getTetrominoColour() {
+    public Colour getTetrominoColour() {
         return tetrominoColour;
     }
 
@@ -184,14 +182,13 @@ public class TetrisState {
         return score;
     }
 
-    public static byte getColourId(DyeColor colour) {
-        if (colour == DyeColor.BLACK) return 0;
-        return (byte)(colour.getId()+1);
+    public static byte getColourId(Colour colour) {
+        return (byte)(colour.ordinal());
     }
 
-    public static DyeColor fromColourId(byte v) {
-        if (v == 0) return DyeColor.BLACK;
-        return DyeColor.byId(v-1);
+    public static Colour fromColourId(byte v) {
+        if (v < 0 || v > Colour.VALUES.length) return Colour.RED;
+        return Colour.VALUES[v];
     }
 
     public static TetrisState fromItem(ItemStack stack) {

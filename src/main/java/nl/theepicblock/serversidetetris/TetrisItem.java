@@ -19,7 +19,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Random;
 
 public class TetrisItem extends Item implements VirtualItem {
 
@@ -73,7 +72,7 @@ public class TetrisItem extends Item implements VirtualItem {
             if (isRight) {
                 // Start new game
                 var state = new TetrisState();
-                state.newTetromino(new Random());
+                state.newTetromino(playerEntity.getRandom());
 
                 var stateNbt = new NbtCompound();
                 state.writeToNbt(stateNbt);
@@ -86,7 +85,7 @@ public class TetrisItem extends Item implements VirtualItem {
 
     public static TetrisState tickGame(ItemStack stack, ServerPlayerEntity playerEntity) {
         var state = TetrisState.fromItem(stack);
-        state.tick();
+        state.tick(playerEntity.getRandom());
 
         if (state.scoreChanged) {
             playerEntity.sendMessage(new LiteralText("Your score: "+state.getScore()), true);

@@ -70,8 +70,8 @@ public class TetrisState {
         tetrominoPos = TETROMINO_SPAWN;
     }
 
-    public void tick() {
-        if (currentTetromino == null) newTetromino(new Random());
+    public void tick(Random random) {
+        if (currentTetromino == null) newTetromino(random);
         tick++;
 
         if (tick % 5 == 0) {
@@ -93,7 +93,7 @@ public class TetrisState {
 
                     areaSet(transfPos, colourId);
                 }
-                newTetromino(new Random());
+                newTetromino(random);
 
                 checkClearLines();
             }

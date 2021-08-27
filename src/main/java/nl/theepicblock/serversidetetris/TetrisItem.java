@@ -148,7 +148,7 @@ public class TetrisItem extends Item implements VirtualItem {
 
     static {
         stack = new ItemStack(Items.CAULDRON, 1);
-        stack.setCustomName(new LiteralText("Some Console"));
+        stack.setCustomName(new LiteralText("Some Old Console"));
 
         var loreList = new NbtList();
         var displayNbt = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);

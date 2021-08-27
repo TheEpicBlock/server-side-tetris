@@ -7,13 +7,18 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Random;
 
 public class TetrisItem extends Item implements VirtualItem {
@@ -132,11 +137,31 @@ public class TetrisItem extends Item implements VirtualItem {
 
     @Override
     public Item getVirtualItem() {
-        return Items.BAKED_POTATO;
+        return Items.CAULDRON;
     }
+
+    public static final ItemStack stack;
 
     @Override
     public ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return new ItemStack(getVirtualItem(), 1).setCustomName(new LiteralText("Some Console"));
+        return stack.copy();
+    }
+
+    static {
+        stack = new ItemStack(Items.CAULDRON, 1);
+        stack.setCustomName(new LiteralText("Some Console"));
+
+        var loreList = new NbtList();
+        var displayNbt = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
+
+        loreList.add(NbtString.of(Text.Serializer.toJson(new LiteralText("left/right click to rotate").formatted(Formatting.BLUE))));
+        loreList.add(NbtString.of(Text.Serializer.toJson(new LiteralText("shift + left/right click to move").formatted(Formatting.BLUE))));
+
+        displayNbt.put("Lore", loreList);
+    }
+
+    @Override
+    public void modifyTooltip(List<Text> tooltip, ItemStack stack, @Nullable ServerPlayerEntity player) {
+        VirtualItem.super.modifyTooltip(tooltip, stack, player);
     }
 }

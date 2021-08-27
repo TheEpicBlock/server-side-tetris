@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "GRW",
+    "WWW"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:red_wool"
+    },
+    "W": {
+      "item": "minecraft:green_wool"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "serversidetetris:tetrisitem",
+    "count": 1
+  }
+}

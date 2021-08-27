@@ -113,7 +113,7 @@ public class TetrisState {
 
     private void checkClearLines() {
         var linesCleared = new IntArrayList();
-        for (int y = 0; y < HEIGHT; y++) {
+        for (int y = HEIGHT-1; y >= 0; y--) {
             var count = 0;
             for (int x = 0; x < WIDTH; x++) {
                 var val = areaGet(x, y);

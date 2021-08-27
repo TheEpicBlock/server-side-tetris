@@ -6,12 +6,11 @@ public enum Colour {
     NONE(0x000000),
     RED(0xfc5560),
     LIME(0x20f90c),
-    YELLOW(0xfce75d),
     BLUE(0x6af7f7),
     PINK(0xfc71fa);
 
     public static final Colour[] VALUES = Colour.values();
-    public static final Colour[] COLOURS = {RED, LIME, YELLOW, BLUE, PINK};
+    public static final Colour[] COLOURS = {RED, LIME, BLUE, PINK};
     public final Vec3f asVec;
 
     @SuppressWarnings("PointlessBitwiseExpression")
